@@ -18,9 +18,7 @@ services:
   mopidy:
     build: 
       context: mopidy/
-
-    ports:
-      - "5000:5000"
+    network_mode: host
  
   snapserver:
       image: jaedb/snapserver
