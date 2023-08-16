@@ -11,7 +11,7 @@
         <h2>My music</h2>
         <ul>
             <li><a href="/">Tracks</a></li>
-            <li><a href="/">Playlist</a></li>
+            <li><a href="/playlists">Playlist</a></li>
             <li><a href="/about">Artist</a></li>
             <li><a href="/">Albums</a></li>
             <li><a href="/">Podcasts</a></li>

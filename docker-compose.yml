@@ -11,13 +11,14 @@ services:
     build: frontend/
     volumes:
       - ./frontend/src/:/app/src
-    ports:
-      - "5173:5173"
+    network_mode: host
     env_file:
       - frontend/.env
   mopidy:
     build: 
       context: mopidy/
+    env_file:
+      - .env
     network_mode: host
  
   snapserver:

@@ -25,6 +25,8 @@ client_secret_spotipy = $SPOTIPY_CLIENT_SECRET
 enabled = $HTTP_ENABLED
 hostname = $HTTP_HOSTNAME
 port = $HTTP_PORT
+allowed_origins = $ALLOWED_ORIGINS
+csrf_protection = $CSRF_PROTECTION
 
 [mpd]
 hostname = $MPD_HOSTNAME
@@ -68,3 +70,4 @@ EOF
 
 echo "mopidy.conf file created successfully."
 
+cp mopidy.conf /etc/mopidy/mopidy.conf
