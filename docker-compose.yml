@@ -19,6 +19,8 @@ services:
       context: mopidy/
     env_file:
       - .env
+    volumes:
+      - ./tmp/snapserver:/tmp
     network_mode: host
  
   snapserver:

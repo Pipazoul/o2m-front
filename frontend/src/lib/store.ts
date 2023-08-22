@@ -3,30 +3,50 @@ export const modal = writable(false);
 export const loginModal = writable(false);
 import PocketBase from 'pocketbase';
 import {PUBLIC_POCKETBASE_URL} from '$env/static/public'
+import type { Player } from './models/Player';
 
 export const pb = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 export const currentUser = writable(pb.authStore.model);
-export let currentPlaylists = writable([]);
-export let currentPlaylist = writable([]);
-export let currentPlaylistId = writable("");
-export let playerState = writable(null);
+export const currentPlaylists = writable([]);
+export const currentPlaylist = writable([]);
+export const currentPlaylistId = writable("");
+export let player = writable(<Player>{});
 
 const socket = new WebSocket('ws://localhost:6680/mopidy/ws/');
 
 socket.addEventListener("open", () => {
     console.log("Opened");
-    const request = {"jsonrpc": "2.0", "id": 1, "method": "core.playlists.as_list"};
+    let request = {"jsonrpc": "2.0", "id": 1, "method": "core.playlists.as_list"};
     socket.send(JSON.stringify(request));
     // subscribe to currentPlaylistId
     currentPlaylistId.subscribe((currentPlaylistId) => {
-
         if (currentPlaylistId) {
             console.log("currentPlaylistId", currentPlaylistId);
             const request = {"jsonrpc": "2.0", "id": 2, "method": "core.playlists.lookup", "params": {"uri": currentPlaylistId}};
             socket.send(JSON.stringify(request));            
         }
     });
+
+    // get playback state
+    request = {"jsonrpc": "2.0", "id": 3, "method": "core.playback.get_state"};
+    socket.send(JSON.stringify(request));
+
+    // subscribe to player.state and set the playback state
+    player.subscribe((player) => {
+        if (player.state) {
+            console.log("player.state", player.state);
+            const request = {"jsonrpc": "2.0", "id": 4, "method": "core.playback.set_state", "params": {"new_state": player.state}};
+            socket.send(JSON.stringify(request));
+        }
+        if (player.track) {
+            console.log("player.track", player.track);
+            const request = {"jsonrpc": "2.0", "id": 5, "method": "core.tracklist.add", "params": {"uris": [player.track.uri]}};
+            socket.send(JSON.stringify(request));
+        }
+    });
+
+    
   });
   socket.addEventListener("message", (event) => {
     console.log("Received response:", event.data);
@@ -41,6 +61,18 @@ socket.addEventListener("open", () => {
             console.log("currentPlaylist", response.result);
             currentPlaylist.set(response.result.tracks);
         }
+        // response.id 3 is the playback state
+        if (response.id == 3) {
+            console.log("Player state", response);
+            player.set({state: response.result});
+        }
+        // response.id 5 is the tracklist add
+        if (response.id == 5) {
+            console.log("Tracklist add", response);
+        }
+        else{
+            console.log("Uknown response id", response);
+        }
     }
 
   });
@@ -48,6 +80,9 @@ socket.addEventListener("open", () => {
   console.error("WebSocket error:", event);
   socket.close();
 });
+
+
+
 
 
 pb.authStore.onChange(() => {
