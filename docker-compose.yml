@@ -20,7 +20,9 @@ services:
     env_file:
       - .env
     volumes:
-      - ./tmp/snapserver:/tmp
+      - /tmp/snapserver:/tmp
+      - ./mopidy_data/media:/media:ro  # Media files
+      - ./mopidy_data/data:/var/lib/mopidy   
     network_mode: host
  
   snapserver:

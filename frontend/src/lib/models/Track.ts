@@ -7,5 +7,4 @@ export type Track = {
     track_no: number;
     disc_no: number;
     bitrate: number;
-
 }

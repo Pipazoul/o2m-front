@@ -3,7 +3,8 @@ export const modal = writable(false);
 export const loginModal = writable(false);
 import PocketBase from 'pocketbase';
 import {PUBLIC_POCKETBASE_URL} from '$env/static/public'
-import type { Player } from './models/Player';
+import type { Player, Track, Tracklist } from './models/index';
+
 
 export const pb = new PocketBase(PUBLIC_POCKETBASE_URL);
 
@@ -12,13 +13,22 @@ export const currentPlaylists = writable([]);
 export const currentPlaylist = writable([]);
 export const currentPlaylistId = writable("");
 export let player = writable(<Player>{});
+export let tracklist = writable(<Tracklist[]>[]);
+
+
 
 const socket = new WebSocket('ws://localhost:6680/mopidy/ws/');
 
 socket.addEventListener("open", () => {
     console.log("Opened");
+    // get playlists
     let request = {"jsonrpc": "2.0", "id": 1, "method": "core.playlists.as_list"};
     socket.send(JSON.stringify(request));
+
+    // get current get_current_tl_track
+    request = {"jsonrpc": "2.0", "id": 2, "method": "core.playback.get_current_tl_track"};
+    socket.send(JSON.stringify(request));
+
     // subscribe to currentPlaylistId
     currentPlaylistId.subscribe((currentPlaylistId) => {
         if (currentPlaylistId) {
@@ -46,6 +56,15 @@ socket.addEventListener("open", () => {
         }
     });
 
+    // subscribe to tracklist and set the tracklist
+    tracklist.subscribe((tracklist) => {
+        if (tracklist) {
+            console.log("tracklist", tracklist);
+            const request = {"jsonrpc": "2.0", "id": 6, "method": "core.playback.play", "params": {"tlid": tracklist[0].tlid}};
+            socket.send(JSON.stringify(request));
+        }
+    });
+
     
   });
   socket.addEventListener("message", (event) => {
@@ -66,9 +85,16 @@ socket.addEventListener("open", () => {
             console.log("Player state", response);
             player.set({state: response.result});
         }
+        // response.id 4 is the playback state
+        if (response.id == 4) {
+            console.log("Player state", response);
+            player.set({state: response.result});
+        }
         // response.id 5 is the tracklist add
         if (response.id == 5) {
             console.log("Tracklist add", response);
+            // set the tracklist
+            tracklist.set(response.result);
         }
         else{
             console.log("Uknown response id", response);
