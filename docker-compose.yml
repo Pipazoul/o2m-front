@@ -20,7 +20,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./tmp/snapserver:/tmp
+      - /tmp/snapserver:/tmp
     network_mode: host
  
   snapserver:
