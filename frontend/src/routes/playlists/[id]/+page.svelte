@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from '$app/stores';
-    import { currentPlaylist, currentPlaylistId, player, tracklist } from '$lib/store';
+    import { currentPlaylist, currentPlaylistId, player, tracklist } from '$lib/stores/store';
 	import { onMount } from 'svelte';
     const playlistId : string = $page.params.id;
 

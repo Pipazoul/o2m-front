@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { currentPlaylists } from "$lib/store";
+  import { currentPlaylists } from "$lib/stores/store";
 </script>
 <section class="flex flex-col">
     {#each $currentPlaylists as playlist}

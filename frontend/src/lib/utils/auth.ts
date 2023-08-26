@@ -1,4 +1,4 @@
-import {pb} from "../store";
+import {pb} from "../stores/store";
 import { goto } from "$app/navigation";
 
 

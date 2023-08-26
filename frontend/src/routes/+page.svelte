@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { currentUser } from "$lib/store";
+	import { currentUser } from "$lib/stores/store";
     import { login, logout } from "$lib/utils/auth";
 
     let email = "";
