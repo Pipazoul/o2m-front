@@ -1,40 +1,27 @@
 <script lang="ts">
-	import { player } from "$lib/store";
+	import { player } from "$lib/stores/store";
     import type { Player } from "$lib/models/player";
 	import { onMount } from "svelte";
+    import SnapStream from '$lib/utils/snapstream';
+    import Audiostream from '$lib/utils/snapstream';
 
-    let audioStream: MediaStream;
+    let snapStream;
 
-    onMount(() => {
-        /**console.log("### Player ###", $player);
-        // onpen a ws socket to snapcast server an listen audio binary data*
+    function handleContextReady() {
+        snapStream.play();
+    }
 
-        const streamUrl = "ws://localhost:1780/stream";
-        const ws = new WebSocket(streamUrl);
-        ws.binaryType = "arraybuffer";
-        ws.onopen = () => {
-            console.log("### WS OPEN ###");
-        };
-        ws.onmessage = (event) => {
-            //console.log("### WS MESSAGE ###");
-            //const data = event.data;
-            //console.log(data);
-            //const blob = new Blob([data], { type: "audio/ogg; codecs=opus" });
-            //const audio = document.createElement("audio");
-            //audio.src = URL.createObjectURL(blob);
-            
-        };
-        ws.onclose = () => {
-            console.log("### WS CLOSE ###");
-        };
-        ws.onerror = (error) => {
-            console.log("### WS ERROR ###");
-            console.log(error);
-        };**/
+    function connectSnapStream() {
+        snapStream = new Audiostream();
+        snapStream.on('contextReady', handleContextReady);  
 
+    }
 
-    });
+    function stopSnapStream() {
+        snapStream.stop();
+    }
 
+   
     
     function returnPlayerState (state) {
         // if state stopped, play if paused play if playing pause
@@ -51,11 +38,14 @@
 
 </script>
 <section class="fixed bottom-0 bg-primary w-full text-white">
+
+    <button on:click={connectSnapStream}>Connect SnapStream</button>
+    <button on:click={stopSnapStream}>Stop SnapStream</button>
+
+
     PLAYER
     {#if $player}
         <button on:click={() => $player.state = returnPlayerState($player.state)}>{ $player.state }</button>
     {/if}
-
-
 
 </section>
